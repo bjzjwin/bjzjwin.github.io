@@ -1,0 +1,500 @@
+/* Speed Controller Panel & Responsive Game Viewport */
+:root {
+    --bg-surface: rgba(18, 22, 34, 0.85);
+    --bg-surface-subtle: rgba(255, 255, 255, 0.05);
+    --border-subtle: rgba(255, 255, 255, 0.12);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-primary: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.35);
+    --accent-success: #34d399;
+    --accent-warning: #fbbf24;
+    --accent-danger: #f87171;
+    --card-radius: 14px;
+}
+
+/* 页面整体布局 */
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0 16px 40px;
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 顶部标题条 */
+.speed-runner-header {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.speed-runner-header h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.speed-runner-header .badge {
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 20px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* ========================================================
+   游戏舞台卡片与尺寸修复（重中之重：杜绝 Arcade 模式全屏拉伸）
+   ======================================================== */
+.game-viewport-card {
+    width: 100%;
+    max-width: 800px;
+    background: #ffffff;
+    border-radius: var(--card-radius);
+    padding: 18px 16px 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    margin: 10px auto 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-stage-frame {
+    width: 600px;
+    height: 150px;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+/* 强制重置原版样式中的 100vh 与 scale 错误 */
+#main-frame-error.interstitial-wrapper,
+.offline .interstitial-wrapper,
+.arcade-mode .interstitial-wrapper {
+    height: 150px !important;
+    width: 600px !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.offline .runner-container,
+.arcade-mode .runner-container {
+    height: 150px !important;
+    width: 600px !important;
+    max-width: 600px !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 auto !important;
+    transform: none !important;
+    overflow: hidden !important;
+    transition: none !important;
+}
+
+.offline .runner-canvas,
+.arcade-mode .runner-canvas {
+    height: 150px !important;
+    width: 600px !important;
+    max-width: 600px !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+/* 控制按钮与提示信息 */
+.game-tips-bar {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.game-tips-bar kbd {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #334155;
+    font-weight: 600;
+}
+
+/* ========================================================
+   速度控制面板与 HUD
+   ======================================================== */
+.speed-control-container {
+    width: 100%;
+    max-width: 800px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 16px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 720px) {
+    .speed-control-container {
+        grid-template-columns: 1fr;
+    }
+    .game-stage-frame,
+    #main-frame-error.interstitial-wrapper,
+    .offline .interstitial-wrapper,
+    .arcade-mode .interstitial-wrapper,
+    .offline .runner-container,
+    .arcade-mode .runner-container,
+    .offline .runner-canvas,
+    .arcade-mode .runner-canvas {
+        max-width: 100% !important;
+        transform-origin: center top;
+    }
+}
+
+/* HUD 仪表卡片 */
+.hud-panel {
+    background: var(--bg-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--card-radius);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.hud-title {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.hud-speed-gauge {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 8px 0 14px;
+}
+
+.hud-speed-value {
+    font-size: 3.2rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-primary);
+    line-height: 1;
+    text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.hud-speed-unit {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.speed-meter-bar {
+    width: 100%;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.speed-meter-fill {
+    height: 100%;
+    width: 25%;
+    background: linear-gradient(90deg, #38bdf8, #818cf8, #f43f5e);
+    border-radius: 99px;
+    transition: width 0.1s ease-out;
+}
+
+.hud-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.stat-val {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 控制器卡片 */
+.controls-panel {
+    background: var(--bg-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--card-radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.preset-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.preset-btn {
+    background: var(--bg-surface-subtle);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.preset-btn:hover {
+    background: rgba(56, 189, 248, 0.15);
+    color: #fff;
+    border-color: rgba(56, 189, 248, 0.4);
+    transform: translateY(-1px);
+}
+
+.preset-btn.active {
+    background: #38bdf8;
+    color: #0f172a;
+    font-weight: 600;
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.slider-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+}
+
+.slider-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.slider-badge {
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent-primary);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-family: monospace;
+    font-size: 0.82rem;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #334155;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #38bdf8;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    border: 2px solid #ffffff;
+    transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 20px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #334155;
+    transition: .3s;
+    border-radius: 20px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #38bdf8;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(18px);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-ctrl {
+    background: var(--bg-surface-subtle);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-ctrl:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-ctrl.btn-restart {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.btn-ctrl.btn-restart:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fff;
+}
+
+/* 底部规则科普框 */
+.rules-footer-card {
+    width: 100%;
+    max-width: 800px;
+    background: rgba(18, 22, 34, 0.6);
+    border: 1px dashed var(--border-subtle);
+    border-radius: var(--card-radius);
+    padding: 16px 20px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    box-sizing: border-box;
+}
+
+.rules-footer-card strong {
+    color: #e2e8f0;
+}
+
+.rules-formula {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #38bdf8;
+}
